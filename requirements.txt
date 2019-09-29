@@ -1,0 +1,4 @@
+future
+paho-mqtt
+toml
+google-cloud-speech
