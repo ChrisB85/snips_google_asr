@@ -17,10 +17,10 @@ if not os.path.exists(CONFIG_INI):
     shutil.copyfile(CONFIG_INI + '.default', CONFIG_INI)
 Config.read(CONFIG_INI)
 
-google_credentials = Config.get('global', 'google_credentials')
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_credentials
+GOOGLE_CREDENTIALS = Config.get('global', 'google_credentials')
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_CREDENTIALS
 
-dir = "recordings"
+LANG = Config.get('global', 'language')
 TOML_PATH = '/etc/snips.toml'
 TOML = toml.load(TOML_PATH)
 
@@ -209,7 +209,7 @@ def start_listening(site_id, sessionId):
     SITES[site_id]['transcoder'] = Transcoder(
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
         rate=16000,
-        language='pl-PL',
+        language=LANG,
         site_id=site_id
     )
     SITES[site_id]['transcoder'].start()
