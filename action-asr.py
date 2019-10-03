@@ -36,7 +36,7 @@ except (KeyError, ValueError):
 try:
     CONFIG_SITES = TOML['snips-asr-google']['audio']
 except (KeyError, ValueError):
-    CONFIG_SITES = ['default@mqtt']
+    CONFIG_SITES = ['+@mqtt']
 
 try:
     MQTT_USER = TOML['snips-common']['mqtt_username']
@@ -174,8 +174,14 @@ def on_message(client, userdata, msg):
 def capture_frame(msg):
     topic = msg.topic.split("/")
     site_id = topic[2]
+
     if not SITES[site_id]['listening']:
         return
+
+    seconds = time.time() - SITES[site_id]['start_time']
+    if seconds >= 5:
+        print("Listen timeout")
+        stop_listening(site_id)
 
     # print("Recording data from site " + site)
 
@@ -189,7 +195,7 @@ def capture_frame(msg):
     # print("size: %d" % size)
 
     if not SITES[site_id]['recording']:
-        SITES[site_id]['recording'] = True
+        start_recording(site_id)
 
     chunkOffset = 52
     while chunkOffset < size:
@@ -202,6 +208,8 @@ def capture_frame(msg):
 
 
 def start_listening(site_id, sessionId):
+    if SITES[site_id]['listening']:
+        return
     print("Listen start on site " + site_id)
     SITES[site_id]['start_time'] = time.time()
     SITES[site_id]['listening'] = True
@@ -217,11 +225,26 @@ def start_listening(site_id, sessionId):
 
 
 def stop_listening(site_id):
+    if not SITES[site_id]['listening']:
+        return
     print("Listen stop on site " + site_id)
+    stop_recording(site_id)
     SITES[site_id]['listening'] = False
-    SITES[site_id]['recording'] = False
     SITES[site_id]['transcoder'].closed = True
     SITES[site_id]['transcoder'].join()
+
+def start_recording(site_id):
+    if SITES[site_id]['recording']:
+        return
+    print("Record start on site " + site_id)
+    SITES[site_id]['recording'] = True
+
+
+def stop_recording(site_id):
+    if not SITES[site_id]['recording']:
+        return
+    print("Record stop on site " + site_id)
+    SITES[site_id]['recording'] = False
 
 
 def query(sessionId, input):
