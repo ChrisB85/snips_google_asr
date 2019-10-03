@@ -36,7 +36,7 @@ except (KeyError, ValueError):
 try:
     CONFIG_SITES = TOML['snips-asr-google']['audio']
 except (KeyError, ValueError):
-    CONFIG_SITES = ['+@mqtt']
+    CONFIG_SITES = ['default@mqtt']
 
 try:
     MQTT_USER = TOML['snips-common']['mqtt_username']
