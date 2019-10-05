@@ -182,7 +182,7 @@ def capture_frame(msg):
     seconds = time.time() - SITES[site_id]['start_time']
     if seconds >= 5:
         print("Listen timeout")
-        text_captured("", 1, seconds, site_id, SITES[site_id]['sessionId'])
+        end_session(SITES[site_id]['sessionId'])
         stop_listening(site_id)
 
     # print("Recording data from site " + site)
@@ -260,6 +260,10 @@ def text_captured(text, likelihood, seconds, siteId, sessionId):
     data = {'sessionId': sessionId, 'text': text, 'likelihood': likelihood, 'seconds': seconds, 'siteId': siteId}
     json_data = json.dumps(data)
     mqtt.publish('hermes/asr/textCaptured', str(json_data))
+
+
+def end_session(session_id):
+    mqtt.publish('hermes/dialogueManager/endSession', json.dumps({'sessionId': session_id}))
 
 
 def main():
