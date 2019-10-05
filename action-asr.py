@@ -66,6 +66,7 @@ class Transcoder(object):
         self.closed = True
         self.confidence = None
         self.transcript = None
+        self.seconds = None
         self.site_id = site_id
 
     def start(self):
@@ -87,8 +88,8 @@ class Transcoder(object):
             if result.is_final:
                 self.confidence = confidence
                 self.transcript = transcript
-                seconds = time.time() - SITES[self.site_id]['start_time']
-                text_captured(self.transcript, self.confidence, seconds, self.site_id, SITES[self.site_id]['sessionId'])
+                self.seconds = time.time() - SITES[self.site_id]['start_time']
+                text_captured(self.transcript, self.confidence, self.seconds, self.site_id, SITES[self.site_id]['sessionId'])
                 stop_listening(self.site_id)
 
     def process(self):
@@ -181,6 +182,7 @@ def capture_frame(msg):
     seconds = time.time() - SITES[site_id]['start_time']
     if seconds >= 5:
         print("Listen timeout")
+        text_captured("", 1, seconds, site_id, SITES[site_id]['sessionId'])
         stop_listening(site_id)
 
     # print("Recording data from site " + site)
