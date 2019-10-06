@@ -21,6 +21,11 @@ GOOGLE_CREDENTIALS = Config.get('global', 'google_credentials')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_CREDENTIALS
 
 LANG = Config.get('global', 'language')
+if Config.has_option('global', 'timeout'):
+    TIMEOUT = int(Config.get('global', 'timeout'))
+else:
+    TIMEOUT = 10
+
 TOML_PATH = '/etc/snips.toml'
 TOML = toml.load(TOML_PATH)
 
@@ -114,7 +119,7 @@ class Transcoder(object):
             self.response_loop(responses)
         except:
             # self.start()
-            print("Audio processing stopped")
+            print("Audio processing stopped on site " +  self.site_id)
             return
 
     def stream_generator(self):
@@ -178,7 +183,7 @@ def capture_frame(msg):
         return
 
     seconds = time.time() - SITES[site_id]['start_time']
-    if seconds >= 5:
+    if seconds >= TIMEOUT:
         print("Listen timeout on site " + site_id)
         transcript = SITES[site_id]['transcoder'].transcript
         if transcript is None:
