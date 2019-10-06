@@ -94,7 +94,7 @@ class Transcoder(object):
         """
         Audio stream recognition and result parsing
         """
-        print("Processing audio...")
+        print("Processing audio on site " + self.site_id + "...")
         client = speech.SpeechClient()
         config = types.RecognitionConfig(
             encoding=self.encoding,
@@ -179,10 +179,10 @@ def capture_frame(msg):
 
     seconds = time.time() - SITES[site_id]['start_time']
     if seconds >= 5:
-        print("Listen timeout")
+        print("Listen timeout on site " + site_id)
         transcript = SITES[site_id]['transcoder'].transcript
         if transcript is None:
-            print("Nothing captured")
+            print("Nothing captured on site " + site_id)
             end_session(SITES[site_id]['sessionId'])
         else:
             confidence = SITES[site_id]['transcoder'].confidence
@@ -261,9 +261,9 @@ def query(sessionId, input):
     mqtt.publish('hermes/nlu/query', str(json_data))
 
 
-def text_captured(text, likelihood, seconds, siteId, sessionId):
-    print('Captured text "' + text + '" with confidence ' + str(likelihood))
-    data = {'sessionId': sessionId, 'text': text, 'likelihood': likelihood, 'seconds': seconds, 'siteId': siteId}
+def text_captured(text, likelihood, seconds, site_id, session_id):
+    print('Captured text "' + text + '" on site ' + site_id + ' with confidence ' + str(likelihood))
+    data = {'sessionId': session_id, 'text': text, 'likelihood': likelihood, 'seconds': seconds, 'siteId': site_id}
     json_data = json.dumps(data)
     mqtt.publish('hermes/asr/textCaptured', str(json_data))
 
