@@ -164,15 +164,17 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     if msg.topic.endswith("audioFrame"):
         capture_frame(msg)
-    if msg.topic == startListeningTopic:
+    else:
+        if isinstance(msg.payload, bytes):
+            msg.payload = msg.payload.decode('UTF-8')
         payload = (json.loads(msg.payload))
-        site_id = payload['siteId']
-        session_id = payload['sessionId']
-        start_listening(site_id, session_id)
-    if msg.topic == stopListeningTopic:
-        payload = (json.loads(msg.payload))
-        site_id = payload['siteId']
-        stop_listening(site_id)
+        if msg.topic == startListeningTopic:
+            site_id = payload['siteId']
+            session_id = payload['sessionId']
+            start_listening(site_id, session_id)
+        elif msg.topic == stopListeningTopic:
+            site_id = payload['siteId']
+            stop_listening(site_id)
 
 
 def capture_frame(msg):
