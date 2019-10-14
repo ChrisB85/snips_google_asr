@@ -1,4 +1,4 @@
 [global]
 google_credentials=/usr/share/snips/googlecredentials.json
-language=en-EN
+language=en
 timeout=10
